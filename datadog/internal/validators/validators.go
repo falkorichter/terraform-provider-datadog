@@ -187,3 +187,51 @@ func ValidateDatadogDowntimeTimezone(v interface{}, k string) (ws []string, erro
 	}
 	return
 }
+
+func ValidateNonBlankStringField(value interface{}, path cty.Path) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	stringValue, isString := value.(string)
+	if !isString {
+		return append(diags, diag.Diagnostic{
+			Severity:      diag.Error,
+			Summary:       "Field value must be a non-blank string",
+			AttributePath: cty.Path{},
+		})
+	}
+
+	if len(strings.TrimSpace(stringValue)) == 0 {
+		return append(diags, diag.Diagnostic{
+			Severity:      diag.Error,
+			Summary:       "Field must not be blank",
+			AttributePath: cty.Path{},
+		})
+	}
+
+	return diags
+}
+
+func ValidateNonBlankStringListField(value interface{}, path cty.Path) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	stringList, isStringList := value.([]string)
+	if !isStringList {
+		return append(diags, diag.Diagnostic{
+			Severity:      diag.Error,
+			Summary:       "Field value must be a list of non-blank strings",
+			AttributePath: cty.Path{},
+		})
+	}
+
+	for _, stringValue := range stringList {
+		if len(strings.TrimSpace(stringValue)) == 0 {
+			return append(diags, diag.Diagnostic{
+				Severity:      diag.Error,
+				Summary:       "Values in list must not be blank",
+				AttributePath: cty.Path{},
+			})
+		}
+	}
+
+	return diags
+}
